@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PFR | Enaex</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='web.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <img class="brand-logo" src="{{ url_for('visual', filename='Logo enaex sem texto.png') }}" alt="Enaex">
+      <div>
+        <h1>Plano de Fogo Realizado</h1>
+        <p>Envie os insumos operacionais e baixe o plano processado.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <form class="upload-form" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
+          <label class="dropzone" for="inputs">
+            <span class="dropzone-title">Anexar inputs</span>
+            <span class="dropzone-text">CSV, XLSX, XLSM, PDF, TXT e imagens de apoio</span>
+            <input id="inputs" name="inputs" type="file" multiple required>
+          </label>
+          <button type="submit">Gerar plano</button>
+        </form>
+
+        {% if error %}
+          <div class="message error">
+            <strong>Falha na validacao</strong>
+            <pre>{{ error }}</pre>
+          </div>
+        {% endif %}
+
+        {% if result %}
+          <div class="message success">
+            <strong>Plano gerado</strong>
+            <dl>
+              <div><dt>ID</dt><dd>{{ result.plan_id }}</dd></div>
+              <div><dt>Data</dt><dd>{{ result.blast_date }}</dd></div>
+              <div><dt>Hora</dt><dd>{{ result.blast_time }}</dd></div>
+              <div><dt>Furos</dt><dd>{{ result.rows }}</dd></div>
+            </dl>
+            <a class="download" href="{{ download_url }}">Baixar output</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <aside class="panel side">
+        <h2>Arquivos esperados</h2>
+        <ul>
+          <li>Projeto completo</li>
+          <li>Config final</li>
+          <li>PP em PDF</li>
+          <li>HISTO em TXT</li>
+        </ul>
+        {% if saved_files %}
+          <h2>Inputs recebidos</h2>
+          <ul>
+            {% for file in saved_files %}
+              <li>{{ file }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </aside>
+    </main>
+  </body>
+</html>

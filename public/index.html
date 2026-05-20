@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PFR | Enaex</title>
+    <style>
+      :root {
+        --enaex-red: #df1f26;
+        --ink: #202124;
+        --muted: #68707a;
+        --line: #d9dde3;
+        --soft: #f6f7f9;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #fff;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px 32px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      header img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+      }
+
+      main {
+        width: min(960px, calc(100% - 40px));
+        margin: 40px auto;
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      header p,
+      .panel p,
+      li {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 28px;
+        background: #fff;
+      }
+
+      .callout {
+        margin-top: 20px;
+        padding: 18px;
+        border-left: 4px solid var(--enaex-red);
+        background: var(--soft);
+      }
+
+      code {
+        padding: 2px 5px;
+        border-radius: 4px;
+        background: #eef0f3;
+      }
+
+      a {
+        color: var(--enaex-red);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="assets/logo-enaex.png" alt="Enaex">
+      <div>
+        <h1>Plano de Fogo Realizado</h1>
+        <p>Interface web e pipeline Python para gerar o output operacional.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <p>Este projeto possui uma interface Flask para anexar inputs, validar os arquivos e baixar o plano gerado em Excel.</p>
+
+        <div class="callout">
+          <p>GitHub Pages hospeda apenas arquivos estáticos e não executa backend Python. Para usar upload, processamento e download do XLSX, rode o projeto localmente:</p>
+          <p><code>python main.py --web --config config.yaml</code></p>
+        </div>
+
+        <p>Depois de iniciar, acesse <code>http://127.0.0.1:5000</code>. O código-fonte, os testes e a configuração de publicação estão neste repositório.</p>
+      </section>
+    </main>
+  </body>
+</html>

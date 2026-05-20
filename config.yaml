@@ -1,0 +1,76 @@
+versao: "2.0"
+
+paths:
+  project_root: "."
+  input_root: "data/inputs/PP"
+  output_root: "data/outputs/PP"
+  backup_root: "data/backup"
+  log_root: "logs"
+
+inputs:
+  pp:
+    project_patterns:
+      - "*PROJETO COMPLETO*.csv"
+      - "*PROJETO COMPLETO*.xlsx"
+      - "*PROJETO COMPLETO*.xlsm"
+    final_patterns:
+      - "*CONFIG FINAL*.csv"
+      - "*CONFIG FINAL*.xlsx"
+      - "*CONFIG FINAL*.xlsm"
+    plan_pdf_patterns:
+      - "PP.pdf"
+    histo_patterns:
+      - "HISTO-*.txt"
+
+business:
+  layout: "pp"
+  output_type_label: "producao"
+  plan_id_source: "pdf"
+  plan_id_regex: "(?:PC|PP)?([0-9]{6,7})"
+  fallback_plan_id: "0000000"
+  output_name_template: "Plano_Fogo_Realizado_PP{plan_id}.xlsx"
+  data_sheet_name: "Dados dos Furos"
+  summary_sheet_name: "Resumo"
+  use_final_detonating_time_as_is: true
+  fill_missing_detonating_time: true
+  simulate_stemming_variation: true
+  simulate_stemming_variation_max: 0.12
+
+validation:
+  required_project_columns:
+    - "Number"
+    - "UTM_X"
+    - "UTM_Y"
+    - "Length_m"
+    - "Stemming_m"
+    - "Diameter_mm"
+    - "Subdrilling_m"
+    - "Angle_deg"
+    - "Azimuth_deg"
+    - "Total_Charge_kg"
+  required_final_columns:
+    - "Number"
+    - "X"
+    - "Y"
+    - "Z"
+    - "X_Toe"
+    - "Y_Toe"
+    - "Z_Toe"
+    - "Length"
+    - "Stemming"
+    - "Diameter"
+    - "Subdrilling"
+    - "Angle"
+    - "Azimuth"
+    - "DetonatingTime"
+    - "InputedCharge"
+
+export:
+  decimal_places_coordinates: 4
+  decimal_places_values: 1
+  decimal_places_charge: 2
+
+logging:
+  level: "INFO"
+  file_template: "geracao_{date}.log"
+  console: true
