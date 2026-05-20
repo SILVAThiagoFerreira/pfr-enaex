@@ -34,6 +34,9 @@ python main.py --web --config config.yaml
 
 Acesse `http://127.0.0.1:5000`, anexe os arquivos operacionais e baixe o Excel gerado. Cada execução web usa uma pasta isolada em `data/web_runs/`, mantendo backup, validação e logs do pipeline.
 
+## GitHub Pages
+O projeto tambem possui uma versao one page em `docs/` para GitHub Pages. Nessa versao, o processamento roda no navegador com JavaScript: o usuario anexa os inputs e baixa o XLSX na mesma URL publicada.
+
 ## Estrutura
 - `src/` contém a lógica modular.
 - `tests/` contém testes de fumaça e validação básica.

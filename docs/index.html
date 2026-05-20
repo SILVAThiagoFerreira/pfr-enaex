@@ -4,91 +4,46 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PFR | Enaex</title>
-    <style>
-      :root {
-        --enaex-red: #df1f26;
-        --ink: #202124;
-        --muted: #68707a;
-        --line: #d9dde3;
-        --soft: #f6f7f9;
-      }
-
-      * { box-sizing: border-box; }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background: #fff;
-        color: var(--ink);
-        font-family: Arial, Helvetica, sans-serif;
-      }
-
-      header {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        padding: 22px 32px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      header img {
-        width: 42px;
-        height: 42px;
-        object-fit: contain;
-      }
-
-      main {
-        width: min(960px, calc(100% - 40px));
-        margin: 40px auto;
-      }
-
-      h1, p { margin: 0; }
-      h1 { font-size: 24px; }
-
-      header p, .panel p {
-        color: var(--muted);
-        line-height: 1.7;
-      }
-
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 28px;
-        background: #fff;
-      }
-
-      .callout {
-        margin: 20px 0;
-        padding: 18px;
-        border-left: 4px solid var(--enaex-red);
-        background: var(--soft);
-      }
-
-      code {
-        padding: 2px 5px;
-        border-radius: 4px;
-        background: #eef0f3;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
-    <header>
+    <header class="topbar">
       <img src="assets/logo-enaex.png" alt="Enaex">
       <div>
         <h1>Plano de Fogo Realizado</h1>
-        <p>Interface web e pipeline Python para gerar o output operacional.</p>
+        <p>Upload, validacao, processamento e download em uma unica pagina.</p>
       </div>
     </header>
 
-    <main>
+    <main class="layout">
       <section class="panel">
-        <p>Este projeto possui uma interface Flask para anexar inputs, validar os arquivos e baixar o plano gerado em Excel.</p>
-        <div class="callout">
-          <p>GitHub Pages hospeda apenas arquivos estaticos e nao executa backend Python. Para usar upload, processamento e download do XLSX, rode o projeto localmente:</p>
-          <p><code>python main.py --web --config config.yaml</code></p>
-        </div>
-        <p>Depois de iniciar, acesse <code>http://127.0.0.1:5000</code>.</p>
+        <form id="pfr-form" class="upload-form">
+          <label class="dropzone" for="inputs">
+            <span class="dropzone-title">Anexar inputs</span>
+            <span class="dropzone-text">Projeto completo, config final, HISTO e PDF do plano</span>
+            <input id="inputs" name="inputs" type="file" multiple required accept=".csv,.xlsx,.xlsm,.txt,.pdf">
+          </label>
+          <button id="generate" type="submit">Gerar plano</button>
+        </form>
+
+        <div id="status" class="message hidden"></div>
       </section>
+
+      <aside class="panel side">
+        <h2>Arquivos esperados</h2>
+        <ul>
+          <li>Projeto completo: CSV, XLSX ou XLSM</li>
+          <li>Config final: CSV, XLSX ou XLSM</li>
+          <li>HISTO: TXT</li>
+          <li>PP: PDF opcional para rastreabilidade</li>
+        </ul>
+        <h2>Execucao</h2>
+        <ul id="file-list">
+          <li>Nenhum arquivo anexado</li>
+        </ul>
+      </aside>
     </main>
   </body>
 </html>
