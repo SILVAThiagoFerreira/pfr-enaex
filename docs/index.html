@@ -32,9 +32,14 @@
               <input id="final-file" name="final-file" type="file" required accept=".csv,.xlsx,.xlsm">
             </label>
             <label class="file-field" for="pp-file">
-              <span class="field-title">Plano PP</span>
+              <span class="field-title">Plano PP PDF</span>
               <span class="field-text">PDF do plano</span>
               <input id="pp-file" name="pp-file" type="file" required accept=".pdf">
+            </label>
+            <label class="file-field" for="pp-csv-file">
+              <span class="field-title">Plano PP CSV</span>
+              <span class="field-text">CSV do plano</span>
+              <input id="pp-csv-file" name="pp-csv-file" type="file" required accept=".csv">
             </label>
             <label class="file-field" for="histo-file">
               <span class="field-title">Historial DRB</span>
@@ -53,8 +58,9 @@
         <ul>
           <li>Projeto completo: CSV, XLSX ou XLSM</li>
           <li>Config final: CSV, XLSX ou XLSM</li>
+          <li>PP PDF: PDF do plano</li>
+          <li>PP CSV: CSV do plano</li>
           <li>HISTO: TXT</li>
-          <li>PP: PDF opcional para rastreabilidade</li>
         </ul>
         <h2>Execucao</h2>
         <ul id="file-list">

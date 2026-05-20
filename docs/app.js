@@ -20,12 +20,13 @@ const form = document.querySelector("#pfr-form");
 const projectInput = document.querySelector("#project-file");
 const finalInput = document.querySelector("#final-file");
 const ppInput = document.querySelector("#pp-file");
+const ppCsvInput = document.querySelector("#pp-csv-file");
 const histoInput = document.querySelector("#histo-file");
 const button = document.querySelector("#generate");
 const statusBox = document.querySelector("#status");
 const fileList = document.querySelector("#file-list");
 
-[projectInput, finalInput, ppInput, histoInput].forEach((field) => {
+[projectInput, finalInput, ppInput, ppCsvInput, histoInput].forEach((field) => {
   field.addEventListener("change", renderFileList);
 });
 
@@ -43,7 +44,7 @@ form.addEventListener("submit", async (event) => {
     validateRows(sources.project.rows, REQUIRED_PROJECT, sources.project.file.name);
     validateRows(sources.final.rows, REQUIRED_FINAL, sources.final.file.name);
 
-    const planName = extractPlanName(sources.planPdf);
+    const planName = extractPlanName(sources.planPdf, sources.planCsv);
     const { date, time } = extractBlastDateTime(sources.histo);
     const merged = mergeFrames(loadProjectFrame(sources.project.rows), loadFinalFrame(sources.final.rows));
     const { data, imputedCount, stemmingCount } = await buildOutputFrame(merged, planName, date, time);
@@ -65,9 +66,10 @@ async function readSources() {
   const projectFile = projectInput.files[0];
   const finalFile = finalInput.files[0];
   const ppFile = ppInput.files[0];
+  const ppCsvFile = ppCsvInput.files[0];
   const histoFile = histoInput.files[0];
 
-  if (!projectFile || !finalFile || !ppFile || !histoFile) {
+  if (!projectFile || !finalFile || !ppFile || !ppCsvFile || !histoFile) {
     throw new Error("Anexe todos os documentos obrigatorios.");
   }
 
@@ -75,6 +77,7 @@ async function readSources() {
     project: { file: projectFile, rows: await readTable(projectFile) },
     final: { file: finalFile, rows: await readTable(finalFile) },
     planPdf: ppFile,
+    planCsv: { file: ppCsvFile, rows: await readTable(ppCsvFile) },
     histo: { file: histoFile, text: await histoFile.text() },
   };
 }
@@ -254,6 +257,7 @@ function buildSummary(data, planName, date, time, sources) {
     { Campo: "Arquivo projeto", Valor: sources.project.file.name },
     { Campo: "Arquivo realizado", Valor: sources.final.file.name },
     { Campo: "Arquivo PDF", Valor: sources.planPdf.name },
+    { Campo: "Arquivo PP CSV", Valor: sources.planCsv.file.name },
     { Campo: "Arquivo HISTO", Valor: sources.histo.file.name },
   ];
 }
@@ -269,7 +273,16 @@ function downloadWorkbook(data, summary, filename) {
   XLSX.writeFile(workbook, filename);
 }
 
-function extractPlanName(planPdf) {
+function extractPlanName(planPdf, planCsv) {
+  const candidates = [planPdf.name, planCsv.file.name];
+  for (const candidate of candidates) {
+    const basename = candidate.replace(/\.[^.]+$/, "");
+    const match = basename.match(/(?:^|[^A-Za-z0-9])((?:PP|PC)?[0-9]{6,7})(?:[^A-Za-z0-9]|$)/i);
+    if (match) {
+      const value = match[1].toUpperCase();
+      return /^[0-9]/.test(value) ? `PP${value}` : value;
+    }
+  }
   const basename = planPdf.name.replace(/\.[^.]+$/, "");
   const match = basename.match(/(?:^|[^A-Za-z0-9])((?:PP|PC)?[0-9]{6,7})(?:[^A-Za-z0-9]|$)/i);
   if (match) {
@@ -301,7 +314,8 @@ function renderFileList() {
   const entries = [
     ["Projeto completo", projectInput.files[0]],
     ["Config final", finalInput.files[0]],
-    ["Plano PP", ppInput.files[0]],
+    ["Plano PP PDF", ppInput.files[0]],
+    ["Plano PP CSV", ppCsvInput.files[0]],
     ["Historial DRB", histoInput.files[0]],
   ];
   fileList.innerHTML = entries
