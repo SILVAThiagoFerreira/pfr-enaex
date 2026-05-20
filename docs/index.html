@@ -20,11 +20,28 @@
     <main class="layout">
       <section class="panel">
         <form id="pfr-form" class="upload-form">
-          <label class="dropzone" for="inputs">
-            <span class="dropzone-title">Anexar inputs</span>
-            <span class="dropzone-text">Projeto completo, config final, HISTO e PDF do plano</span>
-            <input id="inputs" name="inputs" type="file" multiple required accept=".csv,.xlsx,.xlsm,.txt,.pdf">
-          </label>
+          <div class="file-grid">
+            <label class="file-field" for="project-file">
+              <span class="field-title">Projeto completo</span>
+              <span class="field-text">CSV, XLSX ou XLSM</span>
+              <input id="project-file" name="project-file" type="file" required accept=".csv,.xlsx,.xlsm">
+            </label>
+            <label class="file-field" for="final-file">
+              <span class="field-title">Config final</span>
+              <span class="field-text">CSV, XLSX ou XLSM</span>
+              <input id="final-file" name="final-file" type="file" required accept=".csv,.xlsx,.xlsm">
+            </label>
+            <label class="file-field" for="pp-file">
+              <span class="field-title">Plano PP</span>
+              <span class="field-text">PDF do plano</span>
+              <input id="pp-file" name="pp-file" type="file" required accept=".pdf">
+            </label>
+            <label class="file-field" for="histo-file">
+              <span class="field-title">Historial DRB</span>
+              <span class="field-text">TXT do HISTO</span>
+              <input id="histo-file" name="histo-file" type="file" required accept=".txt">
+            </label>
+          </div>
           <button id="generate" type="submit">Gerar plano</button>
         </form>
 

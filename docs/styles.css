@@ -72,26 +72,31 @@ h1 {
   gap: 18px;
 }
 
-.dropzone {
+.file-grid {
   display: grid;
-  place-items: center;
-  min-height: 230px;
-  padding: 28px;
-  border: 2px dashed #bcc4ce;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.file-field {
+  display: grid;
+  align-content: start;
+  min-height: 150px;
+  padding: 20px;
+  border: 1px solid #bcc4ce;
   border-radius: 8px;
   background: var(--soft);
   cursor: pointer;
-  text-align: center;
 }
 
-.dropzone-title {
+.field-title {
   display: block;
   color: var(--enaex-red);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
 }
 
-.dropzone-text {
+.field-text {
   display: block;
   margin-top: 8px;
   color: var(--muted);
@@ -187,5 +192,9 @@ ul {
     grid-template-columns: 1fr;
     width: calc(100% - 28px);
     margin: 20px auto;
+  }
+
+  .file-grid {
+    grid-template-columns: 1fr;
   }
 }

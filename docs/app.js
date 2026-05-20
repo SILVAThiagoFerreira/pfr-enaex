@@ -17,16 +17,16 @@ const OUTPUT_COLUMNS = [
 ];
 
 const form = document.querySelector("#pfr-form");
-const input = document.querySelector("#inputs");
+const projectInput = document.querySelector("#project-file");
+const finalInput = document.querySelector("#final-file");
+const ppInput = document.querySelector("#pp-file");
+const histoInput = document.querySelector("#histo-file");
 const button = document.querySelector("#generate");
 const statusBox = document.querySelector("#status");
 const fileList = document.querySelector("#file-list");
 
-input.addEventListener("change", () => {
-  const files = [...input.files];
-  fileList.innerHTML = files.length
-    ? files.map((file) => `<li>${escapeHtml(file.name)}</li>`).join("")
-    : "<li>Nenhum arquivo anexado</li>";
+[projectInput, finalInput, ppInput, histoInput].forEach((field) => {
+  field.addEventListener("change", renderFileList);
 });
 
 form.addEventListener("submit", async (event) => {
@@ -39,20 +39,19 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Biblioteca XLSX nao carregada. Verifique a conexao com a internet e recarregue a pagina.");
     }
 
-    const files = [...input.files];
-    const sources = await discoverSources(files);
+    const sources = await readSources();
     validateRows(sources.project.rows, REQUIRED_PROJECT, sources.project.file.name);
     validateRows(sources.final.rows, REQUIRED_FINAL, sources.final.file.name);
 
-    const planId = extractPlanId(files, sources.histoTexts);
-    const { date, time } = extractBlastDateTime(sources.histoTexts);
+    const planName = extractPlanName(sources.planPdf);
+    const { date, time } = extractBlastDateTime(sources.histo);
     const merged = mergeFrames(loadProjectFrame(sources.project.rows), loadFinalFrame(sources.final.rows));
-    const { data, imputedCount, stemmingCount } = await buildOutputFrame(merged, planId, date, time);
-    const summary = buildSummary(data, planId, date, time, sources);
+    const { data, imputedCount, stemmingCount } = await buildOutputFrame(merged, planName, date, time);
+    const summary = buildSummary(data, planName, date, time, sources);
 
-    downloadWorkbook(data, summary, `Plano_Fogo_Realizado_PP${planId}.xlsx`);
+    downloadWorkbook(data, summary, `Plano_Fogo_Realizado_${safeFilename(planName)}.xlsx`);
     setStatus(
-      `Plano gerado com sucesso.\nID: ${planId}\nFuros: ${data.length}\nTempos imputados: ${imputedCount}\nVariacoes de tampao: ${stemmingCount}`,
+      `Plano gerado com sucesso.\nPlano: ${planName}\nData: ${date}\nHora: ${time}\nFuros: ${data.length}\nTempos imputados: ${imputedCount}\nVariacoes de tampao: ${stemmingCount}`,
       "success",
     );
   } catch (error) {
@@ -62,30 +61,22 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-async function discoverSources(files) {
-  const tables = [];
-  const histoTexts = [];
-  let planPdf = null;
+async function readSources() {
+  const projectFile = projectInput.files[0];
+  const finalFile = finalInput.files[0];
+  const ppFile = ppInput.files[0];
+  const histoFile = histoInput.files[0];
 
-  for (const file of files) {
-    const lower = file.name.toLowerCase();
-    if (lower.endsWith(".txt") && lower.includes("histo-")) {
-      histoTexts.push({ file, text: await file.text() });
-    } else if (lower.endsWith(".pdf") && lower.includes("pp")) {
-      planPdf = file;
-    } else if (/\.(csv|xlsx|xlsm)$/i.test(file.name)) {
-      tables.push({ file, rows: await readTable(file) });
-    }
+  if (!projectFile || !finalFile || !ppFile || !histoFile) {
+    throw new Error("Anexe todos os documentos obrigatorios.");
   }
 
-  const project = tables.find((item) => item.file.name.toLowerCase().includes("projeto completo"));
-  const final = tables.find((item) => item.file.name.toLowerCase().includes("config final"));
-
-  if (!project || !final) {
-    throw new Error("Arquivos PP obrigatorios nao encontrados. Anexe Projeto Completo e Config Final.");
-  }
-
-  return { project, final, planPdf, histoTexts };
+  return {
+    project: { file: projectFile, rows: await readTable(projectFile) },
+    final: { file: finalFile, rows: await readTable(finalFile) },
+    planPdf: ppFile,
+    histo: { file: histoFile, text: await histoFile.text() },
+  };
 }
 
 async function readTable(file) {
@@ -251,10 +242,10 @@ async function applyStemmingVariation(rows, planId, maxDelta) {
   return { values, count };
 }
 
-function buildSummary(data, planId, date, time, sources) {
+function buildSummary(data, planName, date, time, sources) {
   const sum = (column) => round2(data.reduce((acc, row) => acc + (numberOrNull(row[column]) || 0), 0));
   return [
-    { Campo: "Plano", Valor: planId },
+    { Campo: "Plano", Valor: planName },
     { Campo: "Data", Valor: date },
     { Campo: "Hora", Valor: time },
     { Campo: "Total de furos", Valor: data.length },
@@ -262,7 +253,8 @@ function buildSummary(data, planId, date, time, sources) {
     { Campo: "Carga total (kg)", Valor: sum("cargas realizadas") },
     { Campo: "Arquivo projeto", Valor: sources.project.file.name },
     { Campo: "Arquivo realizado", Valor: sources.final.file.name },
-    { Campo: "Arquivo PDF", Valor: sources.planPdf ? sources.planPdf.name : "-" },
+    { Campo: "Arquivo PDF", Valor: sources.planPdf.name },
+    { Campo: "Arquivo HISTO", Valor: sources.histo.file.name },
   ];
 }
 
@@ -277,34 +269,44 @@ function downloadWorkbook(data, summary, filename) {
   XLSX.writeFile(workbook, filename);
 }
 
-function extractPlanId(files, histoTexts) {
-  const regex = /(?:PC|PP)?([0-9]{6,7})/i;
-  for (const item of histoTexts) {
-    const match = item.text.match(regex);
-    if (match) return match[1];
+function extractPlanName(planPdf) {
+  const basename = planPdf.name.replace(/\.[^.]+$/, "");
+  const match = basename.match(/(?:^|[^A-Za-z0-9])((?:PP|PC)?[0-9]{6,7})(?:[^A-Za-z0-9]|$)/i);
+  if (match) {
+    const value = match[1].toUpperCase();
+    return /^[0-9]/.test(value) ? `PP${value}` : value;
   }
-  for (const file of files) {
-    const match = file.name.match(regex);
-    if (match) return match[1];
-  }
-  return "0000000";
+  return basename.trim().replace(/\s+/g, "_") || "PP0000000";
 }
 
-function extractBlastDateTime(histoTexts) {
+function extractBlastDateTime(histo) {
   const events = [];
   const regex = /\[Fire\](\d{4}\/\d{2}\/\d{2})-(\d{2}:\d{2}:\d{2})/g;
-  for (const item of histoTexts) {
-    for (const match of item.text.matchAll(regex)) {
-      events.push({ file: item.file.name, date: match[1], time: match[2] });
-    }
+  for (const match of histo.text.matchAll(regex)) {
+    events.push({ date: match[1], time: match[2] });
   }
   if (!events.length) {
-    const now = new Date();
-    return { date: now.toLocaleDateString("pt-BR"), time: now.toTimeString().slice(0, 8) };
+    const modified = new Date(histo.file.lastModified);
+    return {
+      date: modified.toLocaleDateString("pt-BR"),
+      time: modified.toTimeString().slice(0, 8),
+    };
   }
-  events.sort((a, b) => `${b.file}${b.date}${b.time}`.localeCompare(`${a.file}${a.date}${a.time}`));
+  events.sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`));
   const [year, month, day] = events[0].date.split("/");
   return { date: `${day}/${month}/${year}`, time: events[0].time };
+}
+
+function renderFileList() {
+  const entries = [
+    ["Projeto completo", projectInput.files[0]],
+    ["Config final", finalInput.files[0]],
+    ["Plano PP", ppInput.files[0]],
+    ["Historial DRB", histoInput.files[0]],
+  ];
+  fileList.innerHTML = entries
+    .map(([label, file]) => `<li><strong>${label}:</strong> ${escapeHtml(file ? file.name : "pendente")}</li>`)
+    .join("");
 }
 
 function numberOrNull(value) {
@@ -323,6 +325,10 @@ function coalesceNumber(...values) {
 
 function round2(value) {
   return Math.round(value * 100) / 100;
+}
+
+function safeFilename(value) {
+  return String(value).replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_");
 }
 
 function setStatus(message, type) {
