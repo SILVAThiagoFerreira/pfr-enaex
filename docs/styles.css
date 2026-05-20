@@ -124,6 +124,10 @@ button,
   cursor: pointer;
 }
 
+button.secondary {
+  background: #3a3f45;
+}
+
 button:disabled {
   cursor: progress;
   opacity: 0.7;
@@ -132,6 +136,16 @@ button:disabled {
 button:hover,
 .download:hover {
   background: #bd171d;
+}
+
+button.secondary:hover {
+  background: #23272d;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .message {

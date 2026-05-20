@@ -36,7 +36,7 @@ Acesse `http://127.0.0.1:5000`, anexe os arquivos operacionais e baixe o Excel g
 
 ## GitHub Pages
 O projeto tambem possui uma versao one page em `docs/` para GitHub Pages. Nessa versao, o processamento roda no navegador com JavaScript: o usuario anexa os inputs e baixa o XLSX na mesma URL publicada.
-Os anexos sao informados em campos separados para Projeto Completo, Config Final, Plano PP PDF, Plano PP CSV e Historial DRB. O nome do plano vem dos arquivos PP e a data/hora vem do arquivo HISTO TXT.
+Os anexos sao informados em campos separados para O-Pit Cloud QAQC and Blast Information, O-Pit Surface Boreholes CSV Export, Plano de Perfuração (PDF), Plano de Perfuração (Excel) e Historial DRB. O nome do plano vem dos arquivos de perfuração e a data/hora vem do arquivo HISTO TXT.
 
 ## Estrutura
 - `src/` contém a lógica modular.

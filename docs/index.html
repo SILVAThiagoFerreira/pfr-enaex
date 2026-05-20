@@ -13,7 +13,7 @@
       <img src="assets/logo-enaex.png" alt="Enaex">
       <div>
         <h1>Plano de Fogo Realizado</h1>
-        <p>Upload, validacao, processamento e download em uma unica pagina.</p>
+        <p>Upload, validação, processamento e consolidação de Plano de Fogo Realizado.</p>
       </div>
     </header>
 
@@ -22,24 +22,24 @@
         <form id="pfr-form" class="upload-form">
           <div class="file-grid">
             <label class="file-field" for="project-file">
-              <span class="field-title">Projeto completo</span>
+              <span class="field-title">O-Pit Cloud QAQC and Blast Information</span>
               <span class="field-text">CSV, XLSX ou XLSM</span>
               <input id="project-file" name="project-file" type="file" required accept=".csv,.xlsx,.xlsm">
             </label>
             <label class="file-field" for="final-file">
-              <span class="field-title">Config final</span>
+              <span class="field-title">O-Pit Surface Boreholes CSV Export</span>
               <span class="field-text">CSV, XLSX ou XLSM</span>
               <input id="final-file" name="final-file" type="file" required accept=".csv,.xlsx,.xlsm">
             </label>
             <label class="file-field" for="pp-file">
-              <span class="field-title">Plano PP PDF</span>
+              <span class="field-title">Plano de Perfuração (PDF)</span>
               <span class="field-text">PDF do plano</span>
               <input id="pp-file" name="pp-file" type="file" required accept=".pdf">
             </label>
             <label class="file-field" for="pp-csv-file">
-              <span class="field-title">Plano PP CSV</span>
-              <span class="field-text">CSV do plano</span>
-              <input id="pp-csv-file" name="pp-csv-file" type="file" required accept=".csv">
+              <span class="field-title">Plano de Perfuração (Excel)</span>
+              <span class="field-text">XLSX, XLSM ou CSV do plano</span>
+              <input id="pp-csv-file" name="pp-csv-file" type="file" required accept=".csv,.xlsx,.xlsm">
             </label>
             <label class="file-field" for="histo-file">
               <span class="field-title">Historial DRB</span>
@@ -47,7 +47,10 @@
               <input id="histo-file" name="histo-file" type="file" required accept=".txt">
             </label>
           </div>
-          <button id="generate" type="submit">Gerar plano</button>
+          <div class="actions">
+            <button id="generate" type="submit">Consolidar Plano de Fogo</button>
+            <button id="download" type="button" disabled>Baixar Plano de Fogo Realizado Consolidado</button>
+          </div>
         </form>
 
         <div id="status" class="message hidden"></div>
@@ -56,10 +59,10 @@
       <aside class="panel side">
         <h2>Arquivos esperados</h2>
         <ul>
-          <li>Projeto completo: CSV, XLSX ou XLSM</li>
-          <li>Config final: CSV, XLSX ou XLSM</li>
-          <li>PP PDF: PDF do plano</li>
-          <li>PP CSV: CSV do plano</li>
+          <li>O-Pit Cloud QAQC and Blast Information</li>
+          <li>O-Pit Surface Boreholes CSV Export</li>
+          <li>Plano de Perfuração (PDF)</li>
+          <li>Plano de Perfuração (Excel)</li>
           <li>HISTO: TXT</li>
         </ul>
         <h2>Execucao</h2>

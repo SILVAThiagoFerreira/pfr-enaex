@@ -23,11 +23,26 @@ const ppInput = document.querySelector("#pp-file");
 const ppCsvInput = document.querySelector("#pp-csv-file");
 const histoInput = document.querySelector("#histo-file");
 const button = document.querySelector("#generate");
+const downloadButton = document.querySelector("#download");
 const statusBox = document.querySelector("#status");
 const fileList = document.querySelector("#file-list");
+let consolidatedWorkbook = null;
 
 [projectInput, finalInput, ppInput, ppCsvInput, histoInput].forEach((field) => {
-  field.addEventListener("change", renderFileList);
+  field.addEventListener("change", () => {
+    consolidatedWorkbook = null;
+    downloadButton.disabled = true;
+    renderFileList();
+  });
+});
+
+downloadButton.classList.add("secondary");
+downloadButton.addEventListener("click", () => {
+  if (!consolidatedWorkbook) {
+    setStatus("Consolide o plano antes de baixar.", "error");
+    return;
+  }
+  XLSX.writeFile(consolidatedWorkbook.workbook, consolidatedWorkbook.filename);
 });
 
 form.addEventListener("submit", async (event) => {
@@ -50,9 +65,10 @@ form.addEventListener("submit", async (event) => {
     const { data, imputedCount, stemmingCount } = await buildOutputFrame(merged, planName, date, time);
     const summary = buildSummary(data, planName, date, time, sources);
 
-    downloadWorkbook(data, summary, `Plano_Fogo_Realizado_${safeFilename(planName)}.xlsx`);
+    consolidatedWorkbook = createWorkbook(data, summary, `Plano_Fogo_Realizado_${safeFilename(planName)}.xlsx`);
+    downloadButton.disabled = false;
     setStatus(
-      `Plano gerado com sucesso.\nPlano: ${planName}\nData: ${date}\nHora: ${time}\nFuros: ${data.length}\nTempos imputados: ${imputedCount}\nVariacoes de tampao: ${stemmingCount}`,
+      `Plano consolidado com sucesso.\nPlano: ${planName}\nData: ${date}\nHora: ${time}\nFuros: ${data.length}\nTempos imputados: ${imputedCount}\nVariacoes de tampao: ${stemmingCount}`,
       "success",
     );
   } catch (error) {
@@ -262,7 +278,7 @@ function buildSummary(data, planName, date, time, sources) {
   ];
 }
 
-function downloadWorkbook(data, summary, filename) {
+function createWorkbook(data, summary, filename) {
   const workbook = XLSX.utils.book_new();
   const dataSheet = XLSX.utils.json_to_sheet(data, { header: OUTPUT_COLUMNS });
   const summarySheet = XLSX.utils.json_to_sheet(summary, { header: ["Campo", "Valor"] });
@@ -270,7 +286,7 @@ function downloadWorkbook(data, summary, filename) {
   summarySheet["!cols"] = [{ wch: 28 }, { wch: 42 }];
   XLSX.utils.book_append_sheet(workbook, dataSheet, "Dados dos Furos");
   XLSX.utils.book_append_sheet(workbook, summarySheet, "Resumo");
-  XLSX.writeFile(workbook, filename);
+  return { workbook, filename };
 }
 
 function extractPlanName(planPdf, planCsv) {
@@ -312,10 +328,10 @@ function extractBlastDateTime(histo) {
 
 function renderFileList() {
   const entries = [
-    ["Projeto completo", projectInput.files[0]],
-    ["Config final", finalInput.files[0]],
-    ["Plano PP PDF", ppInput.files[0]],
-    ["Plano PP CSV", ppCsvInput.files[0]],
+    ["O-Pit Cloud QAQC and Blast Information", projectInput.files[0]],
+    ["O-Pit Surface Boreholes CSV Export", finalInput.files[0]],
+    ["Plano de Perfuração (PDF)", ppInput.files[0]],
+    ["Plano de Perfuração (Excel)", ppCsvInput.files[0]],
     ["Historial DRB", histoInput.files[0]],
   ];
   fileList.innerHTML = entries
