@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import tempfile
 
 import pandas as pd
 import unittest
@@ -10,10 +11,21 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pfr.config import load_config, normalize_config  # noqa: E402
-from pfr.processing import build_output_frame  # noqa: E402
+from pfr.processing import build_output_frame, load_final_frame  # noqa: E402
 
 
 class ProcessingTest(unittest.TestCase):
+    def test_final_number_accepts_l_prefix(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "realizado_l_prefix.csv"
+            path.write_text(
+                "Number,X,Y,Z,X_Toe,Y_Toe,Z_Toe,Length,Stemming,Diameter,Subdrilling,Angle,Azimuth,DetonatingTime,InputedCharge\n"
+                "L-1,1,2,3,4,5,6,7,8,0.127,0.6,0,0,1000,9\n",
+                encoding="utf-8",
+            )
+            df = load_final_frame(path)
+            self.assertEqual(df["Number"].tolist(), [1])
+
     def test_missing_detonating_time_is_interpolated(self):
         cfg = normalize_config(load_config(ROOT / "config.yaml"), ROOT)
         merged = pd.DataFrame(

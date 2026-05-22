@@ -18,6 +18,14 @@ def _series_or_na(df: pd.DataFrame, column: str) -> pd.Series:
     return pd.Series(np.nan, index=df.index)
 
 
+def _normalize_hole_number(series: pd.Series) -> pd.Series:
+    values = series.astype(str).str.strip()
+    extracted = values.str.extract(r"(?i)^(?:[A-Z]+-)?(\d+)$", expand=False)
+    normalized = pd.to_numeric(extracted, errors="coerce")
+    fallback = pd.to_numeric(series, errors="coerce")
+    return normalized.fillna(fallback).astype("Int64")
+
+
 def _fill_missing_detonating_time(series: pd.Series, enabled: bool) -> tuple[pd.Series, int]:
     values = pd.to_numeric(series, errors="coerce")
     if not enabled:
@@ -76,6 +84,8 @@ def extract_blast_datetime(histo_files: tuple[Path, ...]) -> tuple[str, str]:
 
 def load_project_frame(path: Path) -> pd.DataFrame:
     df = read_table(path)
+    if "Number" in df.columns:
+        df["Number"] = _normalize_hole_number(df["Number"])
     rename = {
         "UTM_X": "X_project",
         "UTM_Y": "Y_project",
@@ -92,6 +102,8 @@ def load_project_frame(path: Path) -> pd.DataFrame:
 
 def load_final_frame(path: Path) -> pd.DataFrame:
     df = read_table(path)
+    if "Number" in df.columns:
+        df["Number"] = _normalize_hole_number(df["Number"])
     rename = {
         "Length": "r_length",
         "Stemming": "r_stemming",

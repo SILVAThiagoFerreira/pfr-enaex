@@ -10,6 +10,7 @@ Evolucao atual:
 - aplicar identidade visual Enaex a partir da pasta `VISUAL`.
 
 Regras operacionais atuais:
+- identificadores de furo no realizado podem vir com prefixo textual como `L-1`; o pipeline normaliza para o número do furo antes do merge.
 - `DetonatingTime` vazio é preenchido por interpolação linear determinística na sequência ordenada por `Number`.
 - `DetonatingTime` imputado é arredondado para inteiro, sem casas decimais.
 - Valores originais de tampão não são alterados automaticamente; padrões repetitivos devem ser tratados como sinal de validação, não com randomização.
